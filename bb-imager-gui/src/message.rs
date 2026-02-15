@@ -140,15 +140,7 @@ pub(crate) fn update(state: &mut BBImager, message: BBImagerMessage) -> Task<BBI
             state.resolve_remote_subitem(item, &target)
         }
         BBImagerMessage::UpdateAvailable(x) => {
-            return Task::future(async move {
-                let res = helpers::show_notification(format!(
-                    "A new version of application is available {}",
-                    x
-                ))
-                .await;
-                tracing::debug!("Notification response {res:?}");
-                BBImagerMessage::Null
-            });
+            return show_notification(format!("A new version of application is available {}", x));
         }
         BBImagerMessage::GotoOsListParent => match state {
             BBImager::ChooseOs(inner) => {
@@ -197,9 +189,15 @@ pub(crate) fn update(state: &mut BBImager, message: BBImagerMessage) -> Task<BBI
             _ => panic!("Unexpected message"),
         },
         BBImagerMessage::FlashCancel => {
+            let mut msg = "Flashing cancelled by user";
+
             *state = match std::mem::take(state) {
                 BBImager::Flashing(inner) => {
                     inner.cancel_flashing.abort();
+
+                    if inner.is_download {
+                        msg = "Download cancelled by user";
+                    }
 
                     BBImager::FlashingCancel(crate::FlashingFinishState {
                         common: inner.common,
@@ -209,13 +207,21 @@ pub(crate) fn update(state: &mut BBImager, message: BBImagerMessage) -> Task<BBI
                 }
                 _ => panic!("Unexpected message"),
             };
+
+            return show_notification(msg.to_string());
         }
         BBImagerMessage::Restart => {
             state.restart();
         }
         BBImagerMessage::FlashFail(err) => {
+            let mut msg = "Flashing failed";
+
             *state = match std::mem::take(state) {
                 BBImager::Flashing(inner) => {
+                    if inner.is_download {
+                        msg = "Download failed";
+                    }
+
                     let logs = std::fs::read_to_string(helpers::log_file_path())
                         .expect("Failed to read logs");
                     let logs = iced::widget::text_editor::Content::with_text(&logs);
@@ -228,6 +234,8 @@ pub(crate) fn update(state: &mut BBImager, message: BBImagerMessage) -> Task<BBI
                 }
                 _ => panic!("Unexpected message"),
             };
+
+            return show_notification(msg.to_string());
         }
         BBImagerMessage::FlashProgress(x) => match state {
             BBImager::Flashing(inner) => {
@@ -239,8 +247,14 @@ pub(crate) fn update(state: &mut BBImager, message: BBImagerMessage) -> Task<BBI
             return state.start_flashing();
         }
         BBImagerMessage::FlashSuccess => {
+            let mut msg = "Flashing finished successfully";
+
             *state = match std::mem::take(state) {
                 BBImager::Flashing(inner) => {
+                    if inner.is_download {
+                        msg = "Download finished successfully";
+                    }
+
                     BBImager::FlashingSuccess(crate::FlashingFinishState {
                         common: inner.common,
                         selected_board: inner.selected_board,
@@ -248,7 +262,9 @@ pub(crate) fn update(state: &mut BBImager, message: BBImagerMessage) -> Task<BBI
                     })
                 }
                 _ => panic!("Unexpected message"),
-            }
+            };
+
+            return show_notification(msg.to_string());
         }
         BBImagerMessage::EditorEvent(evt) => match evt {
             iced::widget::text_editor::Action::Edit(_) => {}
@@ -267,4 +283,12 @@ pub(crate) fn update(state: &mut BBImager, message: BBImagerMessage) -> Task<BBI
     }
 
     Task::none()
+}
+
+fn show_notification(msg: String) -> Task<BBImagerMessage> {
+    Task::future(async move {
+        let res = helpers::show_notification(msg).await;
+        tracing::debug!("Notification response {res:?}");
+        BBImagerMessage::Null
+    })
 }
