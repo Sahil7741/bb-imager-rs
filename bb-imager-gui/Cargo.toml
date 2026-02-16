@@ -16,7 +16,7 @@ tracing = "0.1.44"
 iced_aw = { version = "0.13.0", default-features = false, features = ["spinner"] }
 image = "0.25"
 tokio = { version = "1.49", default-features = false, features = ["macros"] }
-webbrowser = "1.0.6"
+webbrowser = "1.1.0"
 notify-rust = "4.12.0"
 url = "2.5.4"
 whoami = "2.1"
