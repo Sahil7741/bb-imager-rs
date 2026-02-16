@@ -614,21 +614,21 @@ impl Destination {
     }
 }
 
-pub(crate) async fn destinations(flasher: config::Flasher) -> Vec<Destination> {
+pub(crate) async fn destinations(flasher: config::Flasher, filter: bool) -> Vec<Destination> {
     match flasher {
-        config::Flasher::SdCard => bb_flasher::sd::Target::destinations()
+        config::Flasher::SdCard => bb_flasher::sd::Target::destinations(filter)
             .await
             .into_iter()
             .map(Destination::SdCard)
             .collect(),
         #[cfg(feature = "bcf_cc1352p7")]
-        config::Flasher::BeagleConnectFreedom => bb_flasher::bcf::cc1352p7::Target::destinations()
+        config::Flasher::BeagleConnectFreedom => bb_flasher::bcf::cc1352p7::Target::destinations(filter)
             .await
             .into_iter()
             .map(Destination::BeagleConnectFreedom)
             .collect(),
         #[cfg(feature = "bcf_msp430")]
-        config::Flasher::Msp430Usb => bb_flasher::bcf::msp430::Target::destinations()
+        config::Flasher::Msp430Usb => bb_flasher::bcf::msp430::Target::destinations(filter)
             .await
             .into_iter()
             .map(Destination::Msp430)

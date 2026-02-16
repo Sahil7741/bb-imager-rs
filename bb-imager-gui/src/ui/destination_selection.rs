@@ -60,7 +60,24 @@ fn dest_list_pane<'a>(state: &'a crate::ChooseDestState) -> Element<'a, BBImager
         })
         .map(Into::into);
 
-    widget::scrollable(widget::column(items).padding(iced::Padding::ZERO.right(12))).into()
+    widget::scrollable(
+        widget::column(
+            [
+                widget::container(
+                    widget::toggler(!state.filter_destination)
+                        .label("Show all destinations")
+                        .on_toggle(|x| BBImagerMessage::DestinationFilter(!x)),
+                )
+                .padding(16)
+                .into(),
+                widget::rule::horizontal(2).into(),
+            ]
+            .into_iter()
+            .chain(items),
+        )
+        .padding(iced::Padding::ZERO.right(12)),
+    )
+    .into()
 }
 
 fn dest_view_pane<'a>(state: &'a crate::ChooseDestState) -> Element<'a, BBImagerMessage> {

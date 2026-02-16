@@ -13,8 +13,11 @@ use crate::{BBFlasher, BBFlasherTarget, DownloadFlashingStatus, Resolvable};
 pub struct Target(bb_flasher_sd::Device);
 
 impl Target {
-    fn destinations_internal() -> std::collections::HashSet<Self> {
-        bb_flasher_sd::devices().into_iter().map(Self).collect()
+    fn destinations_internal(filter: bool) -> std::collections::HashSet<Self> {
+        bb_flasher_sd::devices(filter)
+            .into_iter()
+            .map(Self)
+            .collect()
     }
 
     /// SD Card size in bytes
@@ -37,7 +40,7 @@ impl TryFrom<PathBuf> for Target {
     type Error = std::io::Error;
 
     fn try_from(value: PathBuf) -> Result<Self, Self::Error> {
-        Self::destinations_internal()
+        Self::destinations_internal(false)
             .into_iter()
             .find(|x| x.0.path == value)
             .ok_or(std::io::Error::new(
@@ -50,8 +53,8 @@ impl TryFrom<PathBuf> for Target {
 impl BBFlasherTarget for Target {
     const FILE_TYPES: &[&str] = &["img", "xz"];
 
-    async fn destinations() -> std::collections::HashSet<Self> {
-        Self::destinations_internal()
+    async fn destinations(filter: bool) -> std::collections::HashSet<Self> {
+        Self::destinations_internal(filter)
     }
 
     fn identifier(&self) -> Cow<'_, str> {

@@ -10,10 +10,15 @@ use futures::channel::mpsc;
 pub struct Target(bb_flasher_dfu::Device);
 
 impl Target {
-    async fn destinations_internal() -> HashSet<Self> {
-        tokio::task::spawn_blocking(|| bb_flasher_dfu::devices().into_iter().map(Self).collect())
-            .await
-            .unwrap()
+    async fn destinations_internal(filter: bool) -> HashSet<Self> {
+        tokio::task::spawn_blocking(move || {
+            bb_flasher_dfu::devices(filter)
+                .into_iter()
+                .map(Self)
+                .collect()
+        })
+        .await
+        .unwrap()
     }
 
     pub const fn bus_number(&self) -> u8 {
@@ -42,8 +47,8 @@ impl std::fmt::Display for Target {
 impl BBFlasherTarget for Target {
     const FILE_TYPES: &[&str] = &[];
 
-    async fn destinations() -> HashSet<Self> {
-        Self::destinations_internal().await
+    async fn destinations(filter: bool) -> HashSet<Self> {
+        Self::destinations_internal(filter).await
     }
 
     fn identifier(&self) -> Cow<'_, str> {

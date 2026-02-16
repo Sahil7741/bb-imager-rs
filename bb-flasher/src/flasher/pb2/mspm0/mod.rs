@@ -34,7 +34,8 @@ impl BBFlasherTarget for Target {
     const FILE_TYPES: &[&str] = &["hex", "txt", "xz"];
     const IS_DESTINATION_SELECTABLE: bool = false;
 
-    async fn destinations() -> HashSet<Self> {
+    // Since only a single destination is possible, no need for filters
+    async fn destinations(_: bool) -> HashSet<Self> {
         let temp = destinations().await;
         HashSet::from([Target {
             name: temp.0,

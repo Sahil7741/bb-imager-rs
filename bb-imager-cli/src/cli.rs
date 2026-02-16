@@ -31,6 +31,11 @@ pub enum Commands {
         #[arg(long)]
         /// Only print paths seperated by newline
         no_frills: bool,
+
+        #[arg(long)]
+        /// Show all possible destinations without any sanity filters. Can be used when a device is
+        /// not visible due to incorrect reporting by OS.
+        no_filter: bool,
     },
 
     /// Command to format SD Card

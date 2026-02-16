@@ -14,8 +14,12 @@ async fn main() {
     match opt.command {
         Commands::Flash { target, quiet } => flash(*target, quiet).await,
         Commands::Format { dst, quiet } => format(dst, quiet).await,
-        Commands::ListDestinations { target, no_frills } => {
-            list_destinations(target, no_frills).await;
+        Commands::ListDestinations {
+            target,
+            no_frills,
+            no_filter,
+        } => {
+            list_destinations(target, no_frills, no_filter).await;
         }
         Commands::GenerateCompletion { shell } => generate_completion(shell),
     }
@@ -251,34 +255,36 @@ async fn format(dst: PathBuf, quite: bool) {
     }
 }
 
-async fn no_frills_list_destinations<T: BBFlasherTarget>() {
+async fn no_frills_list_destinations<T: BBFlasherTarget>(no_filter: bool) {
     let term = console::Term::stdout();
-    let dsts = T::destinations().await;
+    let dsts = T::destinations(!no_filter).await;
 
     for d in dsts {
         term.write_line(&d.identifier()).unwrap();
     }
 }
 
-async fn list_destinations(target: DestinationsTarget, no_frills: bool) {
+async fn list_destinations(target: DestinationsTarget, no_frills: bool, no_filter: bool) {
     if no_frills {
         match target {
-            DestinationsTarget::Sd => no_frills_list_destinations::<bb_flasher::sd::Target>().await,
+            DestinationsTarget::Sd => {
+                no_frills_list_destinations::<bb_flasher::sd::Target>(no_filter).await
+            }
             #[cfg(feature = "dfu")]
             DestinationsTarget::Dfu => {
-                no_frills_list_destinations::<bb_flasher::dfu::Target>().await
+                no_frills_list_destinations::<bb_flasher::dfu::Target>(no_filter).await
             }
             #[cfg(feature = "bcf_cc1352p7")]
             DestinationsTarget::Bcf => {
-                no_frills_list_destinations::<bb_flasher::bcf::cc1352p7::Target>().await
+                no_frills_list_destinations::<bb_flasher::bcf::cc1352p7::Target>(no_filter).await
             }
             #[cfg(feature = "bcf_msp430")]
             DestinationsTarget::Msp430 => {
-                no_frills_list_destinations::<bb_flasher::bcf::msp430::Target>().await
+                no_frills_list_destinations::<bb_flasher::bcf::msp430::Target>(no_filter).await
             }
             #[cfg(feature = "pb2_mspm0")]
             DestinationsTarget::Pb2Mspm0 => {
-                no_frills_list_destinations::<bb_flasher::pb2::mspm0::Target>().await
+                no_frills_list_destinations::<bb_flasher::pb2::mspm0::Target>(no_filter).await
             }
         }
         return;
@@ -293,7 +299,7 @@ async fn list_destinations(target: DestinationsTarget, no_frills: bool) {
             const SIZE_HEADER: &str = "Size (in G)";
             const BYTES_IN_GB: u64 = 1024 * 1024 * 1024;
 
-            let dsts_str: Vec<_> = bb_flasher::sd::Target::destinations()
+            let dsts_str: Vec<_> = bb_flasher::sd::Target::destinations(!no_filter)
                 .await
                 .into_iter()
                 .map(|x| {
@@ -363,7 +369,7 @@ async fn list_destinations(target: DestinationsTarget, no_frills: bool) {
             const VENDOR_ID_HEADER: &str = "Vendor Id";
             const PRODUCT_ID_HEADER: &str = "Product Id";
 
-            let dsts_str: Vec<_> = bb_flasher::dfu::Target::destinations()
+            let dsts_str: Vec<_> = bb_flasher::dfu::Target::destinations(!no_filter)
                 .await
                 .into_iter()
                 .map(|x| {
@@ -438,15 +444,15 @@ async fn list_destinations(target: DestinationsTarget, no_frills: bool) {
         }
         #[cfg(feature = "bcf_msp430")]
         DestinationsTarget::Msp430 => {
-            no_frills_list_destinations::<bb_flasher::bcf::msp430::Target>().await
+            no_frills_list_destinations::<bb_flasher::bcf::msp430::Target>(!no_filter).await
         }
         #[cfg(feature = "bcf_cc1352p7")]
         DestinationsTarget::Bcf => {
-            no_frills_list_destinations::<bb_flasher::bcf::cc1352p7::Target>().await
+            no_frills_list_destinations::<bb_flasher::bcf::cc1352p7::Target>(!no_filter).await
         }
         #[cfg(feature = "pb2_mspm0")]
         DestinationsTarget::Pb2Mspm0 => {
-            no_frills_list_destinations::<bb_flasher::pb2::mspm0::Target>().await
+            no_frills_list_destinations::<bb_flasher::pb2::mspm0::Target>(!no_filter).await
         }
     }
 }

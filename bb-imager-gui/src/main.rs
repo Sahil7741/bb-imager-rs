@@ -476,6 +476,7 @@ struct ChooseDestState {
     selected_image: (OsImageId, helpers::BoardImage),
     selected_dest: Option<helpers::Destination>,
     destinations: Vec<helpers::Destination>,
+    filter_destination: bool,
 }
 
 impl ChooseDestState {
@@ -989,19 +990,23 @@ impl BBImager {
 
     fn subscription(&self) -> Subscription<BBImagerMessage> {
         match self {
-            Self::ChooseDest(x) => {
-                Subscription::run_with(x.selected_image.1.flasher(), |flasher| {
-                    iced::futures::stream::unfold(*flasher, async move |f| {
-                        let mut dest = helpers::destinations(f).await;
+            Self::ChooseDest(x) => Subscription::run_with(
+                (x.selected_image.1.flasher(), x.filter_destination),
+                |(flasher, filter)| {
+                    iced::futures::stream::unfold(
+                        (*flasher, *filter),
+                        async move |(flasher, filter)| {
+                            let mut dest = helpers::destinations(flasher, filter).await;
 
-                        dest.sort_by_key(|x| x.to_string());
+                            dest.sort_by_key(|x| x.to_string());
 
-                        let msg = BBImagerMessage::Destinations(dest);
-                        Some((msg, f))
-                    })
+                            let msg = BBImagerMessage::Destinations(dest);
+                            Some((msg, (flasher, filter)))
+                        },
+                    )
                     .throttle(Duration::from_secs(1))
-                })
-            }
+                },
+            ),
             _ => Subscription::none(),
         }
     }
@@ -1095,6 +1100,7 @@ impl BBImager {
                         selected_image: inner.selected_image,
                         selected_dest: Some(inner.selected_dest),
                         destinations: Vec::new(),
+                        filter_destination: true,
                     })
                 } else {
                     Self::ChooseOs(ChooseOsState {
@@ -1121,6 +1127,7 @@ impl BBImager {
                         selected_image: inner.selected_image,
                         selected_dest: Some(inner.selected_dest),
                         destinations: Vec::new(),
+                        filter_destination: true,
                     })
                 } else {
                     Self::ChooseOs(ChooseOsState {
@@ -1194,6 +1201,7 @@ impl BBImager {
                         selected_image,
                         selected_dest: None,
                         destinations: Vec::new(),
+                        filter_destination: true,
                     })
                 }
             }
