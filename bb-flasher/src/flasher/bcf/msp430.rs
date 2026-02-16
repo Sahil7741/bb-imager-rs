@@ -39,8 +39,8 @@ impl From<String> for Target {
 impl BBFlasherTarget for Target {
     const FILE_TYPES: &[&str] = &["hex", "txt", "xz"];
 
-    async fn destinations() -> std::collections::HashSet<Self> {
-        bb_flasher_bcf::msp430::devices()
+    async fn destinations(filter: bool) -> std::collections::HashSet<Self> {
+        bb_flasher_bcf::msp430::devices(filter)
             .into_iter()
             .map(|x| Self {
                 display_path: x.to_string_lossy().to_string(),

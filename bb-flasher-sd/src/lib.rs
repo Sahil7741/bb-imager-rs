@@ -110,12 +110,17 @@ pub enum Error {
 }
 
 /// Enumerate all SD Cards in system
-pub fn devices() -> std::collections::HashSet<Device> {
+pub fn devices(filter: bool) -> std::collections::HashSet<Device> {
     bb_drivelist::drive_list()
         .expect("Unsupported OS for Sd Card")
         .into_iter()
-        .filter(|x| x.is_removable)
-        .filter(|x| !x.is_virtual)
+        .filter(|x| {
+            if filter {
+                x.is_removable && !x.is_virtual
+            } else {
+                true
+            }
+        })
         .map(|x| Device::new(x.description, x.raw.into(), x.size))
         .collect()
 }

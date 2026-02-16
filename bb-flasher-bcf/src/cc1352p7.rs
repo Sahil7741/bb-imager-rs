@@ -81,10 +81,10 @@ where
 
         const MAX_RETRIES: usize = 3;
         let mut last_error = None;
-        
+
         for attempt in 1..=MAX_RETRIES {
             info!("Bootloader invocation attempt {}/{}", attempt, MAX_RETRIES);
-            
+
             match bcf.invoke_bootloader().and_then(|_| bcf.send_sync()) {
                 Ok(_) => {
                     info!("Successfully started bootloader on attempt {}", attempt);
@@ -99,7 +99,7 @@ where
                 }
             }
         }
-        
+
         Err(last_error.unwrap_or(Error::FailedToStartBootloader))
     }
 
@@ -262,7 +262,10 @@ where
 
     fn verify(&mut self, crc32: u32) -> Result<bool> {
         let actual_crc32 = self.crc32()?;
-        info!("CRC32 verification: expected={:08x}, actual={:08x}", crc32, actual_crc32);
+        info!(
+            "CRC32 verification: expected={:08x}, actual={:08x}",
+            crc32, actual_crc32
+        );
         Ok(actual_crc32 == crc32)
     }
 }
@@ -377,22 +380,22 @@ pub fn flash(
 }
 
 /// Returns all paths to ports having BeagleConnect Freedom.
-pub fn ports() -> std::collections::HashSet<String> {
+pub fn ports(filter: bool) -> std::collections::HashSet<String> {
     serialport::available_ports()
         .expect("Unsupported OS")
         .into_iter()
         .filter(|x| {
-            if cfg!(target_os = "linux") {
-                match &x.port_type {
+            if filter && cfg!(target_os = "linux") {
+                return match &x.port_type {
                     serialport::SerialPortType::UsbPort(y) => {
                         y.manufacturer.as_deref() == Some("BeagleBoard.org")
                             && y.product.as_deref() == Some("BeagleConnect")
                     }
                     _ => false,
-                }
-            } else {
-                true
+                };
             }
+
+            true
         })
         .map(|x| x.port_name)
         .collect()

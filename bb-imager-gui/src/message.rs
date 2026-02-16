@@ -29,6 +29,7 @@ pub(crate) enum BBImagerMessage {
     /// Choose Destination page
     SelectDest(helpers::Destination),
     SelectFileDest(String),
+    DestinationFilter(bool),
 
     // Customization Page
     UpdateFlashConfig(crate::helpers::FlashingCustomization),
@@ -176,6 +177,12 @@ pub(crate) fn update(state: &mut BBImager, message: BBImagerMessage) -> Task<BBI
                 },
             );
         }
+        BBImagerMessage::DestinationFilter(x) => match state {
+            BBImager::ChooseDest(inner) => {
+                inner.filter_destination = x;
+            }
+            _ => panic!("Unexpected message"),
+        },
         BBImagerMessage::UpdateFlashConfig(x) => match state {
             BBImager::Customize(inner) => {
                 inner.customization = x;
@@ -279,7 +286,7 @@ pub(crate) fn update(state: &mut BBImager, message: BBImagerMessage) -> Task<BBI
                 std::mem::take(state).try_into().expect("Unexpected page"),
             ));
         }
-        _ => {}
+        BBImagerMessage::Null => {},
     }
 
     Task::none()

@@ -49,11 +49,11 @@ pub struct Device {
     pub name: String,
 }
 
-pub fn devices() -> HashSet<Device> {
+pub fn devices(filter: bool) -> HashSet<Device> {
     rusb::devices()
         .expect("rusb seems to not be implemented for this platform")
         .iter()
-        .filter(is_dfu_device)
+        .filter(|x| if filter { is_dfu_device(x) } else { true })
         .flat_map(|x| match (x.device_descriptor(), x.open()) {
             (Ok(desc), Ok(dev)) => {
                 let name = format!(
