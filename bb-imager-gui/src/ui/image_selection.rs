@@ -6,7 +6,7 @@ use iced::{
 use crate::{
     constants,
     message::BBImagerMessage,
-    ui::helpers::{card_btn_style, detail_entry, page_type1, svg_icon_style},
+    ui::helpers::{self, card_btn_style, detail_entry, page_type1, svg_icon_style},
 };
 
 const ICON_WIDTH: u32 = 60;
@@ -38,16 +38,20 @@ fn os_list_pane<'a>(state: &'a crate::state::ChooseOsState) -> Element<'a, BBIma
                         .unwrap_or(false);
 
                     let icon: Element<BBImagerMessage> = match img.id {
-                        crate::helpers::OsImageId::Format(_) => widget::svg(state.format_svg().clone())
-                            .height(ICON_WIDTH)
-                            .width(ICON_WIDTH)
-                            .style(svg_icon_style)
-                            .into(),
-                        crate::helpers::OsImageId::Local(_) => widget::svg(state.file_add_svg().clone())
-                            .height(ICON_WIDTH)
-                            .width(ICON_WIDTH)
-                            .style(svg_icon_style)
-                            .into(),
+                        crate::helpers::OsImageId::Format(_) => {
+                            widget::svg(state.format_svg().clone())
+                                .height(ICON_WIDTH)
+                                .width(ICON_WIDTH)
+                                .style(svg_icon_style)
+                                .into()
+                        }
+                        crate::helpers::OsImageId::Local(_) => {
+                            widget::svg(state.file_add_svg().clone())
+                                .height(ICON_WIDTH)
+                                .width(ICON_WIDTH)
+                                .style(svg_icon_style)
+                                .into()
+                        }
                         crate::helpers::OsImageId::Remote(_) => {
                             match state
                                 .image_handle_cache()
@@ -142,14 +146,22 @@ fn os_view_pane<'a>(state: &'a crate::state::ChooseOsState) -> Element<'a, BBIma
                     .into(),
             };
 
-            let col = widget::column![
-                icon,
+            let mut col = widget::column![icon];
+
+            // Add button to copy image info when it makes sense.
+            if let Some(json) = state.img_json() {
+                col = col.push(widget::center(
+                    helpers::copy_btn(state.copy_svg().clone())
+                        .on_press(BBImagerMessage::CopyToClipboard(json)),
+                ));
+            }
+
+            col = col.push(
                 text(img.to_string())
                     .size(24)
                     .align_x(iced::alignment::Alignment::Center)
                     .width(iced::Length::Fill),
-            ]
-            .spacing(16);
+            );
 
             // Add description if present
             let col = match img.description() {
@@ -170,7 +182,7 @@ fn os_view_pane<'a>(state: &'a crate::state::ChooseOsState) -> Element<'a, BBIma
                     .map(Into::into),
             );
 
-            widget::scrollable(col).into()
+            widget::scrollable(col.spacing(16)).into()
         }
         None => {
             let col = widget::column![

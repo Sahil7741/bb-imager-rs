@@ -58,11 +58,17 @@ pub(crate) enum BBImagerMessage {
     /// Add image to cache
     ResolveImage(url::Url, std::path::PathBuf),
 
+    /// Update destinations
     Destinations(Vec<helpers::Destination>),
 
+    /// Read-only editor
     EditorEvent(iced::widget::text_editor::Action),
 
+    /// Show application information
     AppInfo,
+
+    /// Copy text to clipboard.
+    CopyToClipboard(String),
 }
 
 pub(crate) fn update(state: &mut BBImager, message: BBImagerMessage) -> Task<BBImagerMessage> {
@@ -275,6 +281,9 @@ pub(crate) fn update(state: &mut BBImager, message: BBImagerMessage) -> Task<BBI
             *state = BBImager::AppInfo(crate::state::OverlayState::new(
                 std::mem::take(state).try_into().expect("Unexpected page"),
             ));
+        }
+        BBImagerMessage::CopyToClipboard(data) => {
+            return iced::clipboard::write(data);
         }
         BBImagerMessage::Null => {}
     }

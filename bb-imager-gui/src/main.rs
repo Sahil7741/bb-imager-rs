@@ -168,6 +168,7 @@ impl BBImager {
             file_save_icon: widget::svg::Handle::from_memory(constants::FILE_SAVE_ICON),
             info_svg_handle: widget::svg::Handle::from_memory(constants::INFO_ICON),
             window_icon_handle: widget::image::Handle::from_bytes(crate::constants::WINDOW_ICON),
+            copy_svg_handle: widget::svg::Handle::from_memory(constants::COPY_ICON),
 
             img_handle_cache,
         };

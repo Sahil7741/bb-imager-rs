@@ -241,8 +241,14 @@ pub(crate) fn board_view_pane<'a>(
             .into(),
     };
 
+    let copy_btn = copy_btn(state.copy_svg_handle.clone()).on_press_with(|| {
+        let json = serde_json::to_string_pretty(dev).expect("Invalid image");
+        BBImagerMessage::CopyToClipboard(json)
+    });
+
     let cols = widget::column![
         img,
+        widget::center(copy_btn),
         widget::text(&dev.name)
             .size(24)
             .align_x(iced::alignment::Alignment::Center)
@@ -400,4 +406,10 @@ fn info_btn(handle: widget::svg::Handle) -> widget::Button<'static, BBImagerMess
         .on_press(BBImagerMessage::AppInfo)
         .width(iced::Shrink)
         .height(iced::Shrink)
+}
+
+pub(crate) fn copy_btn<'a>(handle: widget::svg::Handle) -> widget::Button<'a, BBImagerMessage> {
+    widget::button(widget::svg(handle))
+        .width(iced::Shrink)
+        .style(widget::button::secondary)
 }

@@ -30,6 +30,7 @@ pub(crate) const ARROW_FORWARD_IOS_ICON: &[u8] =
     include_bytes!("../assets/icons/arrow-forward-ios.svg");
 pub(crate) const FILE_SAVE_ICON: &[u8] = include_bytes!("../assets/icons/file-save.svg");
 pub(crate) const INFO_ICON: &[u8] = include_bytes!("../assets/icons/info.svg");
+pub(crate) const COPY_ICON: &[u8] = include_bytes!("../assets/icons/content-copy.svg");
 
 // Font
 pub(crate) const FONT_REGULAR: iced::Font = iced::Font::with_name("Nunito");

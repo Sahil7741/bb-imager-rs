@@ -31,6 +31,7 @@ pub(crate) struct BBImagerCommon {
     pub(crate) usb_svg_handle: widget::svg::Handle,
     pub(crate) file_save_icon: widget::svg::Handle,
     pub(crate) info_svg_handle: widget::svg::Handle,
+    pub(crate) copy_svg_handle: widget::svg::Handle,
     pub(crate) window_icon_handle: widget::image::Handle,
 
     pub(crate) img_handle_cache: helpers::ImageHandleCache,
@@ -303,6 +304,21 @@ impl ChooseOsState {
 
     pub(crate) fn downloader(&self) -> &bb_downloader::Downloader {
         &self.common.downloader
+    }
+
+    pub(crate) fn copy_svg(&self) -> &widget::svg::Handle {
+        &self.common.copy_svg_handle
+    }
+
+    pub(crate) fn img_json(&self) -> Option<String> {
+        let id = &self.selected_image.as_ref()?.0;
+
+        if let OsImageId::Remote(x) = id {
+            let img = self.image(&x);
+            return Some(serde_json::to_string_pretty(&img).expect("Invalid image"));
+        }
+
+        None
     }
 }
 
