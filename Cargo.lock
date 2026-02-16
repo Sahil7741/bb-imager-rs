@@ -263,9 +263,9 @@ dependencies = [
 
 [[package]]
 name = "ashpd"
-version = "0.12.1"
+version = "0.12.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "618a409b91d5265798a99e3d1d0b226911605e581c4e7255e83c1e397b172bce"
+checksum = "522dc9bec59923af17c43c5911cdabbacdb32ed4f955e83ecf592855618b20b5"
 dependencies = [
  "enumflags2",
  "futures-channel",
@@ -659,7 +659,7 @@ name = "bb-imager-gui"
 version = "0.0.20"
 dependencies = [
  "anyhow",
- "ashpd 0.12.1",
+ "ashpd 0.12.2",
  "bb-config",
  "bb-downloader",
  "bb-flasher",
