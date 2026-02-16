@@ -4,13 +4,12 @@ use iced::{
 };
 
 use crate::{
-    BBImagerMessage, constants,
-    ui::helpers::{card_btn_style, detail_entry, page_type1, svg_icon_style},
+    BBImagerMessage, constants, helpers::DestinationItem, state::ChooseDestState, ui::helpers::{card_btn_style, detail_entry, page_type1, svg_icon_style}
 };
 
 const ICON_WIDTH: u32 = 60;
 
-pub(crate) fn view<'a>(state: &'a crate::ChooseDestState) -> Element<'a, BBImagerMessage> {
+pub(crate) fn view<'a>(state: &'a ChooseDestState) -> Element<'a, BBImagerMessage> {
     page_type1(
         &state.common,
         dest_list_pane(state),
@@ -20,12 +19,12 @@ pub(crate) fn view<'a>(state: &'a crate::ChooseDestState) -> Element<'a, BBImage
                 .on_press(BBImagerMessage::Back)
                 .style(widget::button::secondary),
             widget::button("NEXT")
-                .on_press_maybe(state.selected_dest().map(|_| BBImagerMessage::Next)),
+                .on_press_maybe(state.selected_dest.as_ref().map(|_| BBImagerMessage::Next)),
         ],
     )
 }
 
-fn dest_list_pane<'a>(state: &'a crate::ChooseDestState) -> Element<'a, BBImagerMessage> {
+fn dest_list_pane<'a>(state: &'a ChooseDestState) -> Element<'a, BBImagerMessage> {
     let items = state
         .destinations()
         .map(|dest| {
@@ -36,10 +35,8 @@ fn dest_list_pane<'a>(state: &'a crate::ChooseDestState) -> Element<'a, BBImager
                 .unwrap_or(false);
 
             let icon: Element<BBImagerMessage> = match dest {
-                crate::DestinationItem::SaveToFile(_) => {
-                    widget::svg(state.file_save_icon().clone())
-                }
-                crate::DestinationItem::Destination(_) => widget::svg(state.usb_svg().clone()),
+                DestinationItem::SaveToFile(_) => widget::svg(state.file_save_icon().clone()),
+                DestinationItem::Destination(_) => widget::svg(state.usb_svg().clone()),
             }
             .height(ICON_WIDTH)
             .width(ICON_WIDTH)
@@ -80,8 +77,8 @@ fn dest_list_pane<'a>(state: &'a crate::ChooseDestState) -> Element<'a, BBImager
     .into()
 }
 
-fn dest_view_pane<'a>(state: &'a crate::ChooseDestState) -> Element<'a, BBImagerMessage> {
-    match state.selected_dest() {
+fn dest_view_pane<'a>(state: &'a crate::state::ChooseDestState) -> Element<'a, BBImagerMessage> {
+    match state.selected_dest.as_ref() {
         Some(dest) => {
             let icon: Element<BBImagerMessage> = widget::svg(state.usb_svg().clone())
                 .height(100)

@@ -48,7 +48,7 @@ pub(crate) fn page_type1<'a>(
 ) -> Element<'a, BBImagerMessage> {
     let row2 = widget::row(
         [
-            info_btn(common.info_svg().clone()).into(),
+            info_btn(common.info_svg_handle.clone()).into(),
             widget::space::horizontal().into(),
         ]
         .into_iter()
@@ -92,7 +92,7 @@ pub(crate) fn page_type2<'a>(
 ) -> Element<'a, BBImagerMessage> {
     let row2 = widget::row(
         [
-            info_btn(common.info_svg().clone()).into(),
+            info_btn(common.info_svg_handle.clone()).into(),
             widget::space::horizontal().into(),
         ]
         .into_iter()
@@ -228,14 +228,14 @@ pub(crate) fn board_view_pane<'a>(
     state: &'a crate::BBImagerCommon,
 ) -> Element<'a, BBImagerMessage> {
     let img: Element<BBImagerMessage> = match &dev.icon {
-        Some(u) => match state.image_handle_cache().get(u) {
+        Some(u) => match state.img_handle_cache.get(u) {
             Some(x) => x.view(iced::Length::Fill, iced::Shrink),
-            None => widget::svg(state.downloading_svg().clone())
+            None => widget::svg(state.downloading_svg_handle.clone())
                 .width(iced::Length::Fill)
                 .style(svg_icon_style)
                 .into(),
         },
-        None => widget::svg(state.board_svg().clone())
+        None => widget::svg(state.board_svg_handle.clone())
             .width(iced::Length::Fill)
             .style(svg_icon_style)
             .into(),

@@ -3,7 +3,7 @@ use iced::{
     widget::{self, text},
 };
 
-use crate::{CustomizeState, constants, message::BBImagerMessage, ui::helpers::page_type2};
+use crate::{constants, message::BBImagerMessage, state::CustomizeState, ui::helpers::page_type2};
 
 const HEADING_SIZE: u32 = 26;
 

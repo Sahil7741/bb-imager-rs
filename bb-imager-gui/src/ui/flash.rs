@@ -4,7 +4,8 @@ use iced::{
 };
 
 use crate::{
-    BBImagerMessage, FlashingState, constants,
+    BBImagerMessage, constants,
+    state::FlashingState,
     ui::helpers::{self, ProgressCircle, detail_entry, page_type1},
 };
 

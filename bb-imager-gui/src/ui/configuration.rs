@@ -12,7 +12,7 @@ use crate::{
 
 const INPUT_WIDTH: u32 = 200;
 
-pub(crate) fn view<'a>(state: &'a crate::CustomizeState) -> Element<'a, BBImagerMessage> {
+pub(crate) fn view<'a>(state: &'a crate::state::CustomizeState) -> Element<'a, BBImagerMessage> {
     page_type2(
         &state.common,
         customization_pane(state),
@@ -23,7 +23,7 @@ pub(crate) fn view<'a>(state: &'a crate::CustomizeState) -> Element<'a, BBImager
             widget::button("BACK")
                 .on_press(BBImagerMessage::Back)
                 .style(widget::button::secondary),
-            widget::button("NEXT").on_press_maybe(if state.customization().validate() {
+            widget::button("NEXT").on_press_maybe(if state.customization.validate() {
                 Some(BBImagerMessage::Next)
             } else {
                 None
@@ -32,8 +32,8 @@ pub(crate) fn view<'a>(state: &'a crate::CustomizeState) -> Element<'a, BBImager
     )
 }
 
-fn customization_pane<'a>(state: &'a crate::CustomizeState) -> Element<'a, BBImagerMessage> {
-    match state.customization() {
+fn customization_pane<'a>(state: &'a crate::state::CustomizeState) -> Element<'a, BBImagerMessage> {
+    match &state.customization {
         FlashingCustomization::LinuxSdSysconfig(inner) => linux_sd_card(state, inner),
         FlashingCustomization::Bcf(inner) => bcf(inner),
         #[cfg(feature = "pb2_mspm0")]
@@ -66,7 +66,7 @@ fn pb2_mspm0<'a>(state: &'a persistance::Pb2Mspm0Customization) -> Element<'a, B
 }
 
 fn linux_sd_card<'a>(
-    state: &'a crate::CustomizeState,
+    state: &'a crate::state::CustomizeState,
     config: &'a persistance::SdSysconfCustomization,
 ) -> Element<'a, BBImagerMessage> {
     let col = widget::column([]);

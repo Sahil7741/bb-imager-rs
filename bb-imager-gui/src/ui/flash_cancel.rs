@@ -4,7 +4,8 @@ use iced::{
 };
 
 use crate::{
-    BBImagerMessage, FlashingFinishState, constants,
+    BBImagerMessage, constants,
+    state::FlashingFinishState,
     ui::helpers::{CircleBar, board_view_pane, page_type1},
 };
 

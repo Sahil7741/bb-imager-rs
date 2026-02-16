@@ -22,7 +22,7 @@ pub(crate) enum BBImagerMessage {
     SelectBoard(usize),
 
     /// ChooseOs Page
-    SelectOs(crate::OsImageId),
+    SelectOs(helpers::OsImageId),
     SelectLocalOs((Vec<usize>, helpers::BoardImage)),
     GotoOsListParent,
 
@@ -75,10 +75,10 @@ pub(crate) fn update(state: &mut BBImager, message: BBImagerMessage) -> Task<BBI
         },
         BBImagerMessage::SelectOs(id) => match state {
             BBImager::ChooseOs(inner) => match id {
-                crate::OsImageId::Format(_) => {
+                helpers::OsImageId::Format(_) => {
                     inner.selected_image = Some((id, helpers::BoardImage::format()))
                 }
-                crate::OsImageId::Local(parent) => {
+                helpers::OsImageId::Local(parent) => {
                     let flasher = inner.flasher();
                     let extensions = helpers::file_filter(flasher);
 
@@ -99,10 +99,10 @@ pub(crate) fn update(state: &mut BBImager, message: BBImagerMessage) -> Task<BBI
                         },
                     );
                 }
-                crate::OsImageId::Remote(target) => {
+                helpers::OsImageId::Remote(target) => {
                     if let bb_config::config::OsListItem::Image(x) = inner.image(&target) {
                         inner.selected_image = Some((
-                            crate::OsImageId::Remote(target),
+                            helpers::OsImageId::Remote(target),
                             helpers::BoardImage::remote(
                                 x.clone(),
                                 inner.flasher(),
@@ -118,7 +118,7 @@ pub(crate) fn update(state: &mut BBImager, message: BBImagerMessage) -> Task<BBI
         },
         BBImagerMessage::SelectLocalOs((parent, image)) => match state {
             BBImager::ChooseOs(inner) => {
-                inner.selected_image = Some((crate::OsImageId::Local(parent), image))
+                inner.selected_image = Some((helpers::OsImageId::Local(parent), image))
             }
             _ => panic!("Unexpected message"),
         },
@@ -205,12 +205,7 @@ pub(crate) fn update(state: &mut BBImager, message: BBImagerMessage) -> Task<BBI
                     if inner.is_download {
                         msg = "Download cancelled by user";
                     }
-
-                    BBImager::FlashingCancel(crate::FlashingFinishState {
-                        common: inner.common,
-                        selected_board: inner.selected_board,
-                        is_download: inner.is_download,
-                    })
+                    BBImager::FlashingCancel(inner.into())
                 }
                 _ => panic!("Unexpected message"),
             };
@@ -233,7 +228,7 @@ pub(crate) fn update(state: &mut BBImager, message: BBImagerMessage) -> Task<BBI
                         .expect("Failed to read logs");
                     let logs = iced::widget::text_editor::Content::with_text(&logs);
 
-                    BBImager::FlashingFail(crate::FlashingFailState {
+                    BBImager::FlashingFail(crate::state::FlashingFailState {
                         common: inner.common,
                         err,
                         logs,
@@ -261,12 +256,7 @@ pub(crate) fn update(state: &mut BBImager, message: BBImagerMessage) -> Task<BBI
                     if inner.is_download {
                         msg = "Download finished successfully";
                     }
-
-                    BBImager::FlashingSuccess(crate::FlashingFinishState {
-                        common: inner.common,
-                        selected_board: inner.selected_board,
-                        is_download: inner.is_download,
-                    })
+                    BBImager::FlashingSuccess(inner.into())
                 }
                 _ => panic!("Unexpected message"),
             };
@@ -282,11 +272,11 @@ pub(crate) fn update(state: &mut BBImager, message: BBImagerMessage) -> Task<BBI
             },
         },
         BBImagerMessage::AppInfo => {
-            *state = BBImager::AppInfo(crate::OverlayState::new(
+            *state = BBImager::AppInfo(crate::state::OverlayState::new(
                 std::mem::take(state).try_into().expect("Unexpected page"),
             ));
         }
-        BBImagerMessage::Null => {},
+        BBImagerMessage::Null => {}
     }
 
     Task::none()

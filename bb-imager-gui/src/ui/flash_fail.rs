@@ -4,8 +4,7 @@ use iced::{
 };
 
 use crate::{
-    BBImagerMessage, FlashingFailState, constants,
-    ui::helpers::{CircleBar, page_type1, selectable_text},
+    BBImagerMessage, constants, state::FlashingFailState, ui::helpers::{CircleBar, page_type1, selectable_text}
 };
 
 pub(crate) fn view(state: &FlashingFailState) -> Element<'_, BBImagerMessage> {

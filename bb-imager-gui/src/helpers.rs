@@ -1,6 +1,6 @@
 use std::{collections::HashMap, fmt::Display, path::PathBuf, sync::LazyLock, time::Duration};
 
-use crate::{BBImagerMessage, PACKAGE_QUALIFIER};
+use crate::{BBImagerMessage, PACKAGE_QUALIFIER, constants};
 use bb_config::config::{self, OsListItem};
 use bb_flasher::{BBFlasher, BBFlasherTarget, DownloadFlashingStatus, sd::FlashingSdLinuxConfig};
 use iced::{futures, widget};
@@ -622,11 +622,13 @@ pub(crate) async fn destinations(flasher: config::Flasher, filter: bool) -> Vec<
             .map(Destination::SdCard)
             .collect(),
         #[cfg(feature = "bcf_cc1352p7")]
-        config::Flasher::BeagleConnectFreedom => bb_flasher::bcf::cc1352p7::Target::destinations(filter)
-            .await
-            .into_iter()
-            .map(Destination::BeagleConnectFreedom)
-            .collect(),
+        config::Flasher::BeagleConnectFreedom => {
+            bb_flasher::bcf::cc1352p7::Target::destinations(filter)
+                .await
+                .into_iter()
+                .map(Destination::BeagleConnectFreedom)
+                .collect()
+        }
         #[cfg(feature = "bcf_msp430")]
         config::Flasher::Msp430Usb => bb_flasher::bcf::msp430::Target::destinations(filter)
             .await
@@ -923,5 +925,95 @@ pub(crate) fn pretty_duration(d: Duration) -> String {
         format!("{}:{:02}", secs / 60, secs % 60)
     } else {
         format!("{}s", secs)
+    }
+}
+
+pub(crate) fn app_title(_: &crate::BBImager) -> String {
+    if option_env!("PRE_RELEASE").is_some() {
+        format!("{} (pre-release)", constants::APP_NAME)
+    } else {
+        format!("{} v{}", constants::APP_NAME, env!("CARGO_PKG_VERSION"))
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) enum OsImageId {
+    // Vec points to parent
+    Format(Vec<usize>),
+    // Vec points to parent
+    Local(Vec<usize>),
+    // Vec points to OsImage
+    Remote(Vec<usize>),
+}
+
+pub(crate) struct OsImageItem<'a> {
+    pub(crate) id: OsImageId,
+    pub(crate) icon: Option<&'a url::Url>,
+    pub(crate) label: &'a str,
+    pub(crate) is_sublist: bool,
+}
+
+impl<'a> OsImageItem<'a> {
+    pub(crate) fn format(parent: Vec<usize>, label: &'a str) -> Self {
+        Self {
+            id: OsImageId::Format(parent),
+            icon: None,
+            label,
+            is_sublist: false,
+        }
+    }
+
+    pub(crate) fn local(parent: Vec<usize>) -> Self {
+        Self {
+            id: OsImageId::Local(parent),
+            icon: None,
+            label: "Select Local Image",
+            is_sublist: false,
+        }
+    }
+
+    pub(crate) fn remote(
+        id: Vec<usize>,
+        url: &'a url::Url,
+        label: &'a str,
+        is_sublist: bool,
+    ) -> Self {
+        Self {
+            id: OsImageId::Remote(id),
+            icon: Some(url),
+            label,
+            is_sublist,
+        }
+    }
+}
+
+#[derive(Debug)]
+pub(crate) enum DestinationItem<'a> {
+    SaveToFile(String),
+    Destination(&'a Destination),
+}
+
+impl<'a> std::fmt::Display for DestinationItem<'a> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            DestinationItem::SaveToFile(_) => write!(f, "Save To File"),
+            DestinationItem::Destination(d) => d.fmt(f),
+        }
+    }
+}
+
+impl<'a> DestinationItem<'a> {
+    pub(crate) fn msg(&'a self) -> BBImagerMessage {
+        match self {
+            DestinationItem::SaveToFile(x) => BBImagerMessage::SelectFileDest(x.clone()),
+            DestinationItem::Destination(d) => BBImagerMessage::SelectDest((*d).clone()),
+        }
+    }
+
+    pub(crate) fn is_selected(&'a self, dst: &'a Destination) -> bool {
+        match self {
+            DestinationItem::SaveToFile(_) => false,
+            DestinationItem::Destination(d) => dst.eq(d),
+        }
     }
 }

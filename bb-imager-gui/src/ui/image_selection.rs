@@ -11,7 +11,7 @@ use crate::{
 
 const ICON_WIDTH: u32 = 60;
 
-pub(crate) fn view<'a>(state: &'a crate::ChooseOsState) -> Element<'a, BBImagerMessage> {
+pub(crate) fn view<'a>(state: &'a crate::state::ChooseOsState) -> Element<'a, BBImagerMessage> {
     page_type1(
         &state.common,
         os_list_pane(state),
@@ -26,7 +26,7 @@ pub(crate) fn view<'a>(state: &'a crate::ChooseOsState) -> Element<'a, BBImagerM
     )
 }
 
-fn os_list_pane<'a>(state: &'a crate::ChooseOsState) -> Element<'a, BBImagerMessage> {
+fn os_list_pane<'a>(state: &'a crate::state::ChooseOsState) -> Element<'a, BBImagerMessage> {
     match state.images() {
         Some(imgs) => {
             let items = imgs
@@ -38,17 +38,17 @@ fn os_list_pane<'a>(state: &'a crate::ChooseOsState) -> Element<'a, BBImagerMess
                         .unwrap_or(false);
 
                     let icon: Element<BBImagerMessage> = match img.id {
-                        crate::OsImageId::Format(_) => widget::svg(state.format_svg().clone())
+                        crate::helpers::OsImageId::Format(_) => widget::svg(state.format_svg().clone())
                             .height(ICON_WIDTH)
                             .width(ICON_WIDTH)
                             .style(svg_icon_style)
                             .into(),
-                        crate::OsImageId::Local(_) => widget::svg(state.file_add_svg().clone())
+                        crate::helpers::OsImageId::Local(_) => widget::svg(state.file_add_svg().clone())
                             .height(ICON_WIDTH)
                             .width(ICON_WIDTH)
                             .style(svg_icon_style)
                             .into(),
-                        crate::OsImageId::Remote(_) => {
+                        crate::helpers::OsImageId::Remote(_) => {
                             match state
                                 .image_handle_cache()
                                 .get(img.icon.expect("Missing Os Image icon"))
@@ -120,7 +120,7 @@ fn os_list_pane<'a>(state: &'a crate::ChooseOsState) -> Element<'a, BBImagerMess
     }
 }
 
-fn os_view_pane<'a>(state: &'a crate::ChooseOsState) -> Element<'a, BBImagerMessage> {
+fn os_view_pane<'a>(state: &'a crate::state::ChooseOsState) -> Element<'a, BBImagerMessage> {
     match state.selected_image() {
         Some((_, img)) => {
             let icon = match img.icon() {

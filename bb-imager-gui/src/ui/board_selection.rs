@@ -5,6 +5,7 @@ use iced::{
 
 use crate::{
     BBImagerMessage,
+    state::ChooseBoardState,
     ui::helpers::{self, svg_icon_style},
 };
 use crate::{
@@ -14,7 +15,7 @@ use crate::{
 
 const ICON_WIDTH: u32 = 100;
 
-pub(crate) fn view<'a>(state: &'a crate::ChooseBoardState) -> Element<'a, BBImagerMessage> {
+pub(crate) fn view<'a>(state: &'a ChooseBoardState) -> Element<'a, BBImagerMessage> {
     page_type1(
         &state.common,
         board_list_pane(state),
@@ -24,7 +25,7 @@ pub(crate) fn view<'a>(state: &'a crate::ChooseBoardState) -> Element<'a, BBImag
     )
 }
 
-fn board_list_pane<'a>(state: &'a crate::ChooseBoardState) -> Element<'a, BBImagerMessage> {
+fn board_list_pane<'a>(state: &'a ChooseBoardState) -> Element<'a, BBImagerMessage> {
     let items = state
         .devices()
         .map(|(id, dev)| {
@@ -56,7 +57,7 @@ fn board_list_pane<'a>(state: &'a crate::ChooseBoardState) -> Element<'a, BBImag
     widget::scrollable(column(items).padding(iced::Padding::ZERO.right(12))).into()
 }
 
-fn board_view_pane<'a>(state: &'a crate::ChooseBoardState) -> Element<'a, BBImagerMessage> {
+fn board_view_pane<'a>(state: &'a ChooseBoardState) -> Element<'a, BBImagerMessage> {
     match state.selected_board() {
         Some(dev) => helpers::board_view_pane(dev, &state.common),
         None => widget::center(
