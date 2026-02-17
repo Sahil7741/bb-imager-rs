@@ -314,7 +314,7 @@ impl ChooseOsState {
         let id = &self.selected_image.as_ref()?.0;
 
         if let OsImageId::Remote(x) = id {
-            let img = self.image(&x);
+            let img = self.image(x);
             return Some(serde_json::to_string_pretty(&img).expect("Invalid image"));
         }
 

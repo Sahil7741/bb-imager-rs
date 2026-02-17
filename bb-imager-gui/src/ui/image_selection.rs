@@ -193,25 +193,9 @@ fn os_view_pane<'a>(state: &'a crate::state::ChooseOsState) -> Element<'a, BBIma
                     .width(iced::Fill)
                     .align_x(iced::Center)
                     .font(constants::FONT_BOLD)
-            ]
-            .spacing(16);
+            ];
 
-            let col = match &state.selected_board().instructions {
-                Some(x) => col.extend([
-                    widget::rule::horizontal(2).into(),
-                    text(format!(
-                        "Special instructions for {}",
-                        &state.selected_board().name
-                    ))
-                    .size(16)
-                    .font(constants::FONT_BOLD)
-                    .into(),
-                    text(x).into(),
-                ]),
-                None => col,
-            };
-
-            widget::center(widget::scrollable(col.padding(VIEW_COL_PADDING))).into()
+            widget::center(col.padding(VIEW_COL_PADDING)).into()
         }
     }
 }
