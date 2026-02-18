@@ -37,5 +37,6 @@ pub(crate) fn info_view(state: &FlashingFailState) -> Element<'_, BBImagerMessag
         selectable_text(&state.logs)
     ]
     .spacing(8)
+    .padding(VIEW_COL_PADDING)
     .into()
 }
