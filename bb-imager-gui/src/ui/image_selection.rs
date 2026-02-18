@@ -114,7 +114,9 @@ fn os_list_pane<'a>(state: &'a crate::state::ChooseOsState) -> Element<'a, BBIma
                 )
             };
 
-            widget::scrollable(col.padding(LIST_COL_PADDING)).into()
+            widget::scrollable(col.padding(LIST_COL_PADDING))
+                .id(state.common.scroll_id.clone())
+                .into()
         }
         None => widget::center(
             iced_aw::Spinner::new()
@@ -184,7 +186,9 @@ fn os_view_pane<'a>(state: &'a crate::state::ChooseOsState) -> Element<'a, BBIma
                     .map(Into::into),
             );
 
-            widget::scrollable(col.spacing(16).padding(VIEW_COL_PADDING)).into()
+            widget::scrollable(col.spacing(16).padding(VIEW_COL_PADDING))
+                .id(state.common.scroll_id.clone())
+                .into()
         }
         None => {
             let col = widget::column![

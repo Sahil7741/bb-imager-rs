@@ -297,7 +297,9 @@ fn linux_sd_card<'a>(
             }),
     );
 
-    widget::scrollable(col.spacing(16).padding(VIEW_COL_PADDING)).into()
+    widget::scrollable(col.spacing(16).padding(VIEW_COL_PADDING))
+        .id(state.common.scroll_id.clone())
+        .into()
 }
 
 fn input_with_label<'a, F>(

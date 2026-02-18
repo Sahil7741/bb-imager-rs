@@ -80,6 +80,7 @@ fn dest_list_pane<'a>(state: &'a ChooseDestState) -> Element<'a, BBImagerMessage
         )
         .padding(LIST_COL_PADDING),
     )
+    .id(state.common.scroll_id.clone())
     .into()
 }
 
@@ -107,7 +108,9 @@ fn dest_view_pane<'a>(state: &'a crate::state::ChooseDestState) -> Element<'a, B
                     .map(Into::into),
             );
 
-            widget::scrollable(col.spacing(16).padding(VIEW_COL_PADDING)).into()
+            widget::scrollable(col.spacing(16).padding(VIEW_COL_PADDING))
+                .id(state.common.scroll_id.clone())
+                .into()
         }
         None => {
             let col = widget::column![
@@ -130,9 +133,10 @@ fn dest_view_pane<'a>(state: &'a crate::state::ChooseDestState) -> Element<'a, B
                 None => col,
             };
 
-            widget::center(widget::scrollable(
-                col.padding(VIEW_COL_PADDING).spacing(16),
-            ))
+            widget::center(
+                widget::scrollable(col.padding(VIEW_COL_PADDING).spacing(16))
+                    .id(state.common.scroll_id.clone()),
+            )
             .into()
         }
     }

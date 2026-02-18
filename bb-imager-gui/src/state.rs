@@ -35,6 +35,8 @@ pub(crate) struct BBImagerCommon {
     pub(crate) window_icon_handle: widget::image::Handle,
 
     pub(crate) img_handle_cache: helpers::ImageHandleCache,
+
+    pub(crate) scroll_id: widget::Id,
 }
 
 impl BBImagerCommon {

@@ -171,6 +171,8 @@ impl BBImager {
             copy_svg_handle: widget::svg::Handle::from_memory(constants::COPY_ICON),
 
             img_handle_cache,
+
+            scroll_id: widget::Id::unique(),
         };
 
         // Fetch all board images
@@ -359,7 +361,14 @@ impl BBImager {
         t
     }
 
-    fn back(&mut self) {
+    fn scroll_reset(&self) -> Task<BBImagerMessage> {
+        widget::operation::snap_to(
+            self.common().scroll_id.clone(),
+            widget::operation::RelativeOffset::START,
+        )
+    }
+
+    fn back(&mut self) -> Task<BBImagerMessage> {
         *self = match std::mem::take(self) {
             Self::ChooseOs(inner) => Self::ChooseBoard(inner.into()),
             Self::ChooseDest(inner) => Self::ChooseOs(inner.into()),
@@ -392,7 +401,9 @@ impl BBImager {
             | Self::FlashingCancel(_)
             | Self::Flashing(_)
             | Self::ChooseBoard(_) => panic!("Unexpected message"),
-        }
+        };
+
+        self.scroll_reset()
     }
 
     fn next(&mut self) -> Task<BBImagerMessage> {
@@ -504,7 +515,7 @@ impl BBImager {
                     .fetch_remote_subitems(inner.selected_board, &[]);
                 let icons_task = inner.common.fetch_os_images(inner.selected_board, &[]);
 
-                Task::batch([subitems_task, icons_task])
+                Task::batch([subitems_task, icons_task, self.scroll_reset()])
             }
             Self::Review(inner) => match &inner.customization {
                 helpers::FlashingCustomization::LinuxSdSysconfig(c) => {
@@ -516,16 +527,16 @@ impl BBImager {
                     temp.update_sysconfig(c.clone());
                     inner.common.app_config.update_sd_customization(temp);
 
-                    inner.save_app_config()
+                    Task::batch([inner.save_app_config(), self.scroll_reset()])
                 }
                 helpers::FlashingCustomization::Bcf(c) => {
                     inner.common.app_config.update_bcf_customization(c.clone());
 
-                    inner.save_app_config()
+                    Task::batch([inner.save_app_config(), self.scroll_reset()])
                 }
-                _ => Task::none(),
+                _ => self.scroll_reset(),
             },
-            _ => Task::none(),
+            _ => self.scroll_reset(),
         }
     }
 }

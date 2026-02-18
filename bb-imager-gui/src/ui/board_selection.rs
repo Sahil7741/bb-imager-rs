@@ -54,7 +54,9 @@ fn board_list_pane<'a>(state: &'a ChooseBoardState) -> Element<'a, BBImagerMessa
         })
         .map(Into::into);
 
-    widget::scrollable(column(items).padding(LIST_COL_PADDING)).into()
+    widget::scrollable(column(items).padding(LIST_COL_PADDING))
+        .id(state.common.scroll_id.clone())
+        .into()
 }
 
 fn board_view_pane<'a>(state: &'a ChooseBoardState) -> Element<'a, BBImagerMessage> {

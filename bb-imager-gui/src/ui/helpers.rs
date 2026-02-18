@@ -294,7 +294,9 @@ pub(crate) fn board_view_pane<'a>(
 
     let cols = cols.push(widget::center(widget::row(btns).spacing(16)));
 
-    widget::scrollable(cols.padding(VIEW_COL_PADDING)).into()
+    widget::scrollable(cols.padding(VIEW_COL_PADDING))
+        .id(state.scroll_id.clone())
+        .into()
 }
 
 #[derive(Debug)]

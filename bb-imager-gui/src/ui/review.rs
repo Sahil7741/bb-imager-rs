@@ -68,5 +68,7 @@ fn review_view<'a>(state: &'a CustomizeState) -> Element<'a, BBImagerMessage> {
         ]);
     }
 
-    widget::scrollable(col.spacing(16).padding(VIEW_COL_PADDING)).into()
+    widget::scrollable(col.spacing(16).padding(VIEW_COL_PADDING))
+        .id(state.common.scroll_id.clone())
+        .into()
 }

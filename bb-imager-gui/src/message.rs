@@ -1,6 +1,6 @@
 //! Global GUI Messages
 
-use iced::Task;
+use iced::{Task, widget::operation};
 
 use crate::{
     BBImager, helpers,
@@ -139,7 +139,7 @@ pub(crate) fn update(state: &mut BBImager, message: BBImagerMessage) -> Task<BBI
             });
         }
         BBImagerMessage::Next => return state.next(),
-        BBImagerMessage::Back => state.back(),
+        BBImagerMessage::Back => return state.back(),
         BBImagerMessage::ResolveImage(k, v) => state.image_cache_insert(k, v),
         BBImagerMessage::ExtendConfig(c) => {
             tracing::debug!("Update Config: {:#?}", c);
@@ -333,6 +333,11 @@ pub(crate) fn update(state: &mut BBImager, message: BBImagerMessage) -> Task<BBI
             *state = BBImager::AppInfo(crate::state::OverlayState::new(
                 std::mem::take(state).try_into().expect("Unexpected page"),
             ));
+
+            return operation::snap_to(
+                state.common().scroll_id.clone(),
+                operation::RelativeOffset::START,
+            );
         }
         BBImagerMessage::CopyToClipboard(data) => {
             return iced::clipboard::write(data);

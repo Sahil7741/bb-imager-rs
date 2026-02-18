@@ -47,5 +47,7 @@ fn review_view<'a>(state: &'a OverlayState) -> Element<'a, BBImagerMessage> {
     .width(iced::Fill)
     .align_x(iced::Center);
 
-    widget::scrollable(col).into()
+    widget::scrollable(col)
+        .id(state.common().scroll_id.clone())
+        .into()
 }
